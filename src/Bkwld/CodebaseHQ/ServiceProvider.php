@@ -2,6 +2,7 @@
 
 // Dependencies
 use Airbrake;
+use Illuminate\Support\Facades\Config;
 
 class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 
@@ -38,7 +39,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 				$config->get('codebasehq::project')
 			);
 		});
-		
+
+
 		// Register commands
 		$this->app->singleton('command.codebasehq.deploy', function($app) {
 			return new Commands\Deploy($app->make('codebasehq.request'));
@@ -47,8 +49,21 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 			return new Commands\DeployTickets($app->make('codebasehq.request'));
 		});
 		$this->commands(array('command.codebasehq.deploy', 'command.codebasehq.deploy_tickets'));
-		
-	}
+
+
+        // Build the Main CodebaseHQ class (which makes uses the request object to talk to codebase)
+        $this->app->singleton('codebasehq', function($app) {
+            $config = $app->make('config');
+            return new CodebaseHQ($config->get('codebasehq::config'));
+        });
+
+        // Magically add the Facade
+        $this->app->booting(function()
+        {
+            $loader = \Illuminate\Foundation\AliasLoader::getInstance();
+            $loader->alias('CodebaseHQ', 'Bkwld\CodebaseHQ\Facades\CodebaseHQ');
+        });
+    }
 	
 	/**
 	 * Boot it up
@@ -79,8 +94,10 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	 * @return array
 	 */
 	public function provides() { 
-		return array('codebasehq.airbrake', 
-			'codebasehq.request', 
+		return array(
+            'codebasehq',
+            'codebasehq.airbrake',
+			'codebasehq.request',
 			'command.codebasehq.deploy', 
 			'command.codebasehq.deploy_tickets',
 		); 

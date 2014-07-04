@@ -41,6 +41,16 @@ class Answer {
 
 
     /**
+     * Gets the error as a string
+     * @return string
+     */
+    public function getError()
+    {
+        return (string) $this->xml->error;
+    }
+
+
+    /**
      * Returns the answer as raw xml string
      * @return String
      */
@@ -77,8 +87,8 @@ class Answer {
         $status = $this->getStatus();
 
         if (!preg_match('#^20\d$#', $status)) {
-            $result = $this->getRaw();
-            throw new ApiException("CodebaseHQ request failure ({$status}): {$result}");
+            $error = $this->getError();
+            throw new ApiException("CodebaseHQ request failure ({$status}): {$error}");
         }
     }
 }

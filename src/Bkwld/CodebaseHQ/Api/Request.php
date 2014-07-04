@@ -2,16 +2,34 @@
 
 class Request {
 
+    protected $headers = array('Accept: application/xml', 'Content-type: application/xml');
+    protected $uri = 'api3.codebasehq.com';
+
+    protected $user;
+    protected $key;
+    protected $project;
+
+    protected $use_https = FALSE;
+
+
     /**
-     * Inject dependencies
-     * @param string $user API Username
-     * @param string $key API Key
-     * @param string $project API Project
+     * @param string $user
+     * @param string $key
+     * @param string $project
      */
     public function __construct($user, $key, $project) {
         $this->user = $user;
         $this->key = $key;
         $this->project = $project;
+    }
+
+
+    /**
+     * @param bool $use_https
+     */
+    public function setHttps($use_https)
+    {
+        $this->use_https = $use_https;
     }
 
 
@@ -24,21 +42,15 @@ class Request {
      */
     public function call($path, $method = 'GET', Payload $payload = NULL) {
 
-        // Default headers
-        $headers = array('Accept: application/xml', 'Content-type: application/xml');
-
-        // Create basic-auth syntax
-        $auth = $this->user.':'.$this->key;
-
         // Endpoint
         $path = trim($path, '/');
-        $url = 'http://api3.codebasehq.com/'.$this->project.'/'.$path;
+        $url = $this->baseUrl().'/'.$path;
 
         // Make request
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_USERPWD, $auth);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_USERPWD, $this->auth());
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         if($method == 'POST') {
@@ -55,40 +67,22 @@ class Request {
 
 
     /**
-     * Retrieves a commit or commit tree
-     * @param $repo
-     * @param $ref
-     * @param null $start
-     * @return array
+     * Constructs the basic auth string
+     * @return string
      */
-    public function commits($repo, $ref, $start = NULL)
+    protected function auth()
     {
-        $start = ($start) ?: $ref;
-        $answer = $this->call($repo.'/commits/'.$ref);
-        $commits = $answer->extractCommits();
-        $return = [];
-
-        $found = FALSE;
-        $c = 0;
-
-        while(preg_match('#^20\d$#', $answer->getStatus()) && count($commits) > 0) {
-
-            foreach($commits as $commit) {
-                $return[] = $commit;
-                if($commit->ref == $start) {
-                    $found = TRUE;
-                    break;
-                }
-            }
-
-            if($found) break;
-
-            $answer = $this->call($repo.'/commits/'.$ref."?page={$c}");
-            $commits = $answer->extractCommits();
-            $c++;
-        }
-
-        return $return;
+        return $this->user.':'.$this->key;
     }
 
+
+    /**
+     * Makes the base url for api calls
+     * @return string
+     */
+    protected function baseUrl()
+    {
+        $protocol = ($this->use_https) ? 'https://' : 'http://';
+        return $protocol.$this->uri.'/'.$this->project;
+    }
 }

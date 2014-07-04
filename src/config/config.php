@@ -13,6 +13,7 @@
 	'api' => array(
 		'username' => 'account_name/username',
 		'key' => 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        'use_https' => TRUE,
 	),
 	
 	/* 
@@ -25,7 +26,7 @@
 	 * Toggle to turn off exception logging to codebase. This can be overriden in
 	 * enviornment specific config files
 	 */
-	'exception_logging' => true,
+	'exception_logging' => TRUE,
 
 	/**
 	 * Exceptions that shouldn't be reported to Codebase
