@@ -3,5 +3,7 @@
 
 class Ticket extends ApiObject
 {
-
+    protected $attribute_map = [
+        'id' => ['ticket-id'],
+    ];
 } 

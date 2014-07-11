@@ -8,6 +8,13 @@ abstract class ApiObject {
      */
     protected $xml;
 
+
+    /**
+     * @var array
+     */
+    protected $attribute_map = [];
+
+
     /**
      * @param \SimpleXMLElement $xml
      */
@@ -24,7 +31,16 @@ abstract class ApiObject {
      */
     public function __get($name)
     {
-        return (string) $this->xml->$name;
+        if(!isset($this->attribute_map[$name])) {
+            return (string) $this->xml->$name;
+        } else {
+            $value = $this->xml;
+            foreach($this->attribute_map[$name] as $attribute) {
+                $value = $value->$attribute;
+            }
+
+            return (string) $value;
+        }
     }
 
 

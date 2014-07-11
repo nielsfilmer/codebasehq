@@ -75,7 +75,7 @@ class CodebaseHQ {
     {
         $request = $this->makeRequest();
         $answer = $request->call($repo.'/commits/'.$ref);
-        $commits = $answer->extractCommits();
+        $commits = $answer->commits();
         $return = [];
 
         $found = FALSE;
@@ -93,8 +93,8 @@ class CodebaseHQ {
 
             if($found) break;
 
-            $answer = $request->call($repo.'/commits/'.$ref."?page={$c}");
-            $commits = $answer->extractCommits();
+            $answer = $request->call("{$repo}/commits/{$ref}?page={$c}");
+            $commits = $answer->commits();
             $c++;
         }
 
@@ -102,8 +102,44 @@ class CodebaseHQ {
     }
 
 
-    public function tickets($search)
+    /**
+     * Returns a single ticket by id
+     * @param $id
+     * @return Ticket
+     */
+    public function ticket($id)
     {
+        $request = $this->makeRequest();
+        $answer = $request->call('tickets/?query='.$id);
+        $ticket_array = $answer->tickets();
 
+        return $ticket_array[0];
+    }
+
+
+    /**
+     * Searches for tickets by the given query
+     * @param $query
+     * @return array
+     */
+    public function tickets($query)
+    {
+        $request = $this->makeRequest();
+        $answer = $request->call('tickets/?query='.$query);
+        $tickets = $answer->tickets();
+        return $tickets;
+    }
+
+
+    /**
+     * Returns the assignments for the set project
+     * @return array
+     */
+    public function assignments()
+    {
+        $request = $this->makeRequest();
+        $answer = $request->call('assignments');
+        $users = $answer->users();
+        return $users;
     }
 }

@@ -1,7 +1,5 @@
 <?php namespace Bkwld\CodebaseHQ\Api;
 
-use Bkwld\CodebaseHQ\Api\Objects\Commit;
-
 /**
  * Class Answer
  * Answer from the CodebaseHQ Api
@@ -64,17 +62,49 @@ class Answer {
      * Extracts the commits from the answer
      * @return array
      */
-    public function extractCommits()
+    public function commits()
+    {
+        return $this->extract('commit', '\Bkwld\CodebaseHQ\Api\Objects\Commit');
+    }
+
+
+    /**
+     * Extracts the tickets from the answer
+     * @return array
+     */
+    public function tickets()
+    {
+        return $this->extract('ticket', '\Bkwld\CodebaseHQ\Api\Objects\Ticket');
+    }
+
+
+    /**
+     * Extracts the users from the answer
+     * @return array
+     */
+    public function users()
+    {
+        return $this->extract('user', '\Bkwld\CodebaseHQ\Api\Objects\User');
+    }
+
+
+    /**
+     * Generates ApiObjects from the answer
+     * @param $attribute
+     * @param $api_object
+     * @return array
+     */
+    protected function extract($attribute, $api_object)
     {
         $this->checkStatus();
 
-        $commits = [];
+        $return = [];
 
-        foreach($this->xml->commit as $element) {
-            $commits[] = new Commit($element);
+        foreach($this->xml->$attribute as $element) {
+            $return[] = new $api_object($element);
         }
 
-        return $commits;
+        return $return;
     }
 
 
