@@ -122,11 +122,18 @@ class CodebaseHQ {
      * @param $query
      * @return array
      */
-    public function tickets($query)
+    public function tickets($query = NULL)
     {
         $request = $this->makeRequest();
-        $answer = $request->call('tickets/?query='.$query);
-        $tickets = $answer->tickets();
+
+        if($query) {
+            $answer = $request->call('tickets/?query='.$query);
+            $tickets = $answer->tickets();
+        } else {
+            $answer = $request->call('tickets');
+            $tickets = $answer->tickets();
+        }
+
         return $tickets;
     }
 

@@ -1,5 +1,7 @@
 <?php namespace Bkwld\CodebaseHQ\Api;
 
+use Bkwld\CodebaseHQ\Api\Objects\ApiObject;
+
 class Request {
 
     protected $headers = array('Accept: application/xml', 'Content-type: application/xml');
@@ -37,10 +39,10 @@ class Request {
      * Make a request on the CodebaseHQ API
      * @param $path
      * @param string $method
-     * @param Payload $payload
+     * @param ApiObject $payload
      * @return Answer
      */
-    public function call($path, $method = 'GET', Payload $payload = NULL) {
+    public function call($path, $method = 'GET', ApiObject $payload = NULL) {
 
         // Endpoint
         $path = trim($path, '/');
@@ -55,14 +57,14 @@ class Request {
 
         if($method == 'POST') {
             curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, (string) $payload);
         }
 
         $result = curl_exec($ch);
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        return new Answer($status, new \SimpleXMLElement($result));
+        return new Answer($status, new \SimpleXMLElement($result), $this);
     }
 
 

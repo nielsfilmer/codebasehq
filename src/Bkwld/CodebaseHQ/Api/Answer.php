@@ -18,13 +18,20 @@ class Answer {
     protected $status;
 
     /**
+     * @var Request
+     */
+    protected $request;
+
+    /**
      * @param $status
      * @param \SimpleXMLElement $xml
+     * @param Request $request
      */
-    public function __construct($status, \SimpleXMLElement $xml)
+    public function __construct($status, \SimpleXMLElement $xml, Request $request)
     {
         $this->status = $status;
         $this->xml = $xml;
+        $this->request = $request;
     }
 
 
@@ -101,7 +108,7 @@ class Answer {
         $return = [];
 
         foreach($this->xml->$attribute as $element) {
-            $return[] = new $api_object($element);
+            $return[] = new $api_object($element, $this->request);
         }
 
         return $return;
