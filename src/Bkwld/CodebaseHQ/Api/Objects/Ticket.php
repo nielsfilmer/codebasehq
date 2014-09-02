@@ -7,10 +7,6 @@ class Ticket extends ApiObject
     protected $attribute_map = [
         'id' => ['ticket-id'],
         'type' => ['ticket-type'],
-        'category' => ['category-id'],
-        'priority' => ['priority-id'],
-        'status' => ['status-id'],
-        'milestone' => ['milestone-id'],
     ];
 
 
