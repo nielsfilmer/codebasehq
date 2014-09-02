@@ -39,15 +39,17 @@ abstract class ApiObject {
     public function __get($name)
     {
         if(!isset($this->attribute_map[$name])) {
-            return (string) $this->xml->$name;
+            $value = $this->xml->$name;
         } else {
             $value = $this->xml;
             foreach($this->attribute_map[$name] as $attribute) {
                 $value = $value->$attribute;
             }
-
-            return (string) $value;
         }
+
+        if(count($value->children()) > 0) {
+            return (array) $value;
+        } else return (string) $value;
     }
 
 
