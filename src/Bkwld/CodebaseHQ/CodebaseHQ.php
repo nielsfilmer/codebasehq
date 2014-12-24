@@ -149,4 +149,17 @@ class CodebaseHQ {
         $users = $answer->users();
         return $users;
     }
+
+
+    /**
+     * Returns the project info
+     * @return array
+     */
+    public function project()
+    {
+        $request = $this->makeRequest();
+        $answer = $request->call('');
+        $project = $answer->project();
+        return $project;
+    }
 }

@@ -5,7 +5,28 @@
  * Answer from the CodebaseHQ Api
  * @package Bkwld\CodebaseHQ\Api
  */
-class Answer {
+class Answer
+{
+    /**#@+
+     * Constant object names
+     *
+     * @var string
+     */
+    const OBJ_COMMIT = 'commit';
+    const OBJ_TICKET = 'ticket';
+    const OBJ_USER = 'user';
+    const OBJ_PROJECT = 'project';
+    /**#@-*/
+
+    /**
+     * @var array
+     */
+    protected static $class_map = array(
+        self::OBJ_COMMIT => '\Bkwld\CodebaseHQ\Api\Objects\Commit',
+        self::OBJ_TICKET => '\Bkwld\CodebaseHQ\Api\Objects\Ticket',
+        self::OBJ_USER => '\Bkwld\CodebaseHQ\Api\Objects\User',
+        self::OBJ_PROJECT => '\Bkwld\CodebaseHQ\Api\Objects\Project',
+    );
 
     /**
      * @var \SimpleXMLElement
@@ -51,7 +72,7 @@ class Answer {
      */
     public function getError()
     {
-        return (string) $this->xml->error;
+        return (string)$this->xml->error;
     }
 
 
@@ -71,7 +92,7 @@ class Answer {
      */
     public function commits()
     {
-        return $this->extract('commit', '\Bkwld\CodebaseHQ\Api\Objects\Commit');
+        return $this->extract(self::OBJ_COMMIT);
     }
 
 
@@ -81,7 +102,7 @@ class Answer {
      */
     public function tickets()
     {
-        return $this->extract('ticket', '\Bkwld\CodebaseHQ\Api\Objects\Ticket');
+        return $this->extract(self::OBJ_TICKET);
     }
 
 
@@ -91,20 +112,36 @@ class Answer {
      */
     public function users()
     {
-        return $this->extract('user', '\Bkwld\CodebaseHQ\Api\Objects\User');
+        return $this->extract(self::OBJ_USER);
+    }
+
+
+    /**
+     * @return array
+     */
+    public function project()
+    {
+        return $this->extract(self::OBJ_PROJECT);
     }
 
 
     /**
      * Generates ApiObjects from the answer
      * @param $attribute
-     * @param $api_object
      * @return array
      */
-    protected function extract($attribute, $api_object)
+    protected function extract($attribute)
     {
         $this->checkStatus();
 
+        $api_object = static::$class_map[$attribute];
+
+        // Object is in the root of the answer
+        if($this->xml->getName() == $attribute) {
+            return new $api_object($this->xml, $this->request);
+        }
+
+        // Multiple objects in the answer
         $return = [];
 
         foreach($this->xml->$attribute as $element) {
